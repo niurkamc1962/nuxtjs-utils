@@ -1,0 +1,40 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.2.0",
+    "@i2d/nuxt-pdf-frame": "^0.5.0",
+    "@nuxt/image": "^1.9.0",
+    "@nuxtjs/color-mode": "^3.5.2",
+    "@pinia/nuxt": "^0.9.0",
+    "@quasar/extras": "^1.16.16",
+    "@tanstack/vue-table": "^8.20.5",
+    "@vee-validate/zod": "^4.15.0",
+    "@vueuse/core": "^12.3.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.469.0",
+    "nuxt": "^3.13.0",
+    "nuxt-quasar-ui": "^2.1.9",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "quasar": "^2.17.7",
+    "radix-vue": "^1.9.12",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
+    "vee-validate": "^4.15.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.2",
+    "typescript": "^5.7.3"
+  }
+}

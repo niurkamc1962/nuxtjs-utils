@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-100 text-gray-800; /* Modo claro: fondo claro y texto oscuro */
+}
+
+aside {
+  @apply bg-gray-100 text-gray-900; /* Color claro por defecto para el aside */
+}
+
+header {
+  @apply bg-gray-500 text-white;
+}
+
+.link {
+  @apply text-gray-800 hover:bg-gray-300;
+}
+
+.link-active {
+  @apply bg-blue-600 text-white; /* fondo y texto para modo activo*/
+}
+
+.link-active:hover {
+  @apply bg-blue-500 text-black; /* fondo y texto para modo activo*/
+}
+
+/* estilos para dark mode */
+
+.dark-mode body {
+  @apply bg-gray-900 text-gray-200; /* Modo oscuro: fondo oscuro y texto claro */
+}
+.dark-mode aside {
+  @apply bg-gray-900 text-gray-100; /* Color oscuro para el aside en modo oscuro */
+}
+
+.dark-mode aside * {
+  @apply text-gray-100; /* cambia todos los textos a gris claro en modo oscuro*/
+}
+
+.dark-mode header {
+  @apply bg-gray-700  text-white;
+}
+
+.dark-mode .link {
+  @apply text-yellow-300 hover:bg-gray-600;
+}
+
+.dark-mode .link-active {
+  @apply bg-blue-600 text-white; /* fondo y texto para enlace activo en modo oscuro */
+}
+
+.dark-mode .link-active:hover {
+  @apply bg-blue-500 text-white;
+}
