@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="!apiUrlStore.apiUrl"
+    v-if="!isApiConfigured"
     class="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]"
   >
     <div class="flex items-center justify-center py-12">
@@ -111,6 +111,18 @@ const username = ref("");
 const password = ref("");
 const errorMessage = ref<string | null>(null);
 
+// Verificar si las Urls y el nombre de la aplicacion estan configurados
+const isApiConfigured = ref(
+  !!apiUrlStore.frappeApiUrl && !!apiUrlStore.appName
+);
+
+// Colocando el onMounted para ver el valor de las variables
+onMounted(() => {
+  console.log("apiUrlStore.frappeApiUrl: ", apiUrlStore.frappeApiUrl);
+  console.log("apiUrlStore.appName: ", apiUrlStore.appName);
+  console.log("isApiConfigured: ", isApiConfigured.value);
+});
+
 // funcion para validar la URL
 const validateUrl = (url: string): boolean => {
   const urlPattern = /^(https?:\/\/)([\da-z.-]+)\.([a-z.]{2,6})(:\d+)?\/?$/;
@@ -149,8 +161,9 @@ const handleSetApiUrl = async () => {
     return;
   }
 
-  apiUrlStore.setApiUrl(inputApiUrl.value); // Guarda la URL en el store
+  apiUrlStore.setFrappeApiUrl(inputApiUrl.value); // Guarda la URL en el store
   apiUrlStore.setAppName(inputAppName.value); // Guarda el nombre de la app en el store
+  isApiConfigured.value = true; // Actualiza el estado de la configuracion
   errorMessage.value = null;
 };
 
@@ -158,7 +171,9 @@ const handleSetApiUrl = async () => {
 const handleLogin = async () => {
   const response = await authStore.login(username.value, password.value);
 
-  // console.log("RESPONSE: ", response.message.success_key);
+  console.log("Response: ", response.message);
+
+  //console.log("RESPONSE: ", response.message.success_key);
 
   if (response.message.success_key === 1) {
     $q.notify({

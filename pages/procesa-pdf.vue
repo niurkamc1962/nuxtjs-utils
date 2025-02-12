@@ -128,13 +128,13 @@ const apiUrlStore = useApiUrlStore();
 
 // URL dinámica para la subida de archivos
 const uploadUrl = computed(() => {
-  return `${apiUrlStore.apiUrl}/api/method/${apiUrlStore.appName}.api.pdf.upload_pdf`;
+  return `${apiUrlStore.frappeApiUrl}/api/method/${apiUrlStore.appName}.api.pdf.upload_pdf`;
 });
 
 // Computada para configurar la URL completa del PDF a visualizar
 const fullPdfUrl = computed(() => {
   if (selectedFile.value) {
-    return `${apiUrlStore.apiUrl}${selectedFile.value.ruta_archivo}`;
+    return `${apiUrlStore.frappeApiUrl}${selectedFile.value.ruta_archivo}`;
   }
   return "";
 });
@@ -261,7 +261,7 @@ async function handleFileUpload() {
     const token = getAuthToken();
 
     const response = await fetch(
-      `${apiUrlStore.apiUrl}/api/method/upload_file`,
+      `${apiUrlStore.frappeApiUrl}/api/method/upload_file`,
       {
         method: "POST",
         headers: {
@@ -280,7 +280,7 @@ async function handleFileUpload() {
 
     // Registrando el archivo pdf en el doctype "Archivos PDF" creado en Frappe
     const uploadResponse = await fetch(
-      `${apiUrlStore.apiUrl}/api/method/${apiUrlStore.appName}.api.pdf.upload_pdf`,
+      `${apiUrlStore.frappeApiUrl}/api/method/${apiUrlStore.appName}.api.pdf.upload_pdf`,
       {
         method: "POST",
         headers: {
@@ -338,9 +338,20 @@ async function fetchPdfFiles() {
   try {
     const token = getAuthToken();
 
+    console.log("Token: ", token);
+    const url = `${apiUrlStore.frappeApiUrl}/api/method/${apiUrlStore.appName}.api.pdf.get_pdf_files`;
+    console.log("URL: ", url);
+
+    // Adicionando los headers
+    const headers = {
+      Authorization: `token ${token}`,
+      "Content-Type": "application/json",
+    };
+    console.log("Header: ", headers);
+
     // Llamar al método de Frappe para obtener los archivos PDF
     const response = await fetch(
-      `${apiUrlStore.apiUrl}/api/method/${apiUrlStore.appName}.api.pdf.get_pdf_files`,
+      `${apiUrlStore.frappeApiUrl}/api/method/${apiUrlStore.appName}.api.pdf.get_pdf_files`,
       {
         method: "GET",
         headers: {

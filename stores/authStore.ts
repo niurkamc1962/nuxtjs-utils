@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
     loginError.value = null;
 
     try {
-      const response = await fetch(`${apiUrlStore.apiUrl}/api/method/${apiUrlStore.appName}.api.auth.login`,
+      const response = await fetch(`${apiUrlStore.frappeApiUrl}/api/method/${apiUrlStore.appName}.api.auth.login`,
         {
           method: 'POST',
           headers: {
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
       // console.log('DATA: ', data);
 
 
-      // verifica el success_key para determinar si fue exitora la autenticacion
+      // verifica el success_key para determinar si fue exitosa la autenticacion
       if (data.success_key === 1) {
         user.value = data.message;   // guarda los datos del usuario
         // verificando que user.value no sea null antes de acceder a sus propiedades

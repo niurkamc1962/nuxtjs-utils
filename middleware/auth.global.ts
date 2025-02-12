@@ -4,6 +4,7 @@ import { useApiUrlStore } from '~/stores/apiUrlStore';
 export default defineNuxtRouteMiddleware(async (to) => {
     const authStore = useAuthStore();
 
+
     // Usar el store de la URL de la API
     const apiUrlStore = useApiUrlStore();
 
@@ -66,7 +67,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     async function verifyToken(apiKey: string, apiSecret: string): Promise<boolean> {
         try {
             const response = await fetch(
-                `${apiUrlStore.apiUrl}/api/method/frappe.auth.get_logged_user`,
+                `${apiUrlStore.frappeApiUrl}/api/method/frappe.auth.get_logged_user`,
                 {
                     method: 'GET',
                     headers: {
