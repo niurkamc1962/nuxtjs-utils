@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Mostrara las tablas de Siscont para ser importadas a ERPNext</h1>
+    <h1>Listado de las tablas de Siscont</h1>
     <div class="q-pa-md">
       <q-table
         title="Tablas SQL Server"
@@ -9,19 +9,38 @@
         :rows="rows"
         :columns="columns"
         row-key="name"
-        selection="single"
-        v-model:selected="selected"
-        @update:selected="onRowSelected"
         :pagination="initialPagination"
         :class="{
           'bg-gray-800 text-white': $colorMode.value === 'dark',
           'bg-white': $colorMode.value === 'light',
         }"
         class="rounded-lg shadow-lg"
-      />
+      >
+        <!-- Botones para las acciones en las filas-->
+        <template v-slot:body-cell-actions="props">
+          <q-td :props="props">
+            <q-btn
+              color="primary"
+              label="Estructura"
+              @click="showStructure(props.row.name)"
+              class="q-mr-sm"
+            />
+          </q-td>
+          <q-td :props="props">
+            <q-btn
+              color="secondary"
+              label="Ver JSON"
+              @click="showJsonData(props.row.name)"
+              class="q-mr-sm"
+            />
+          </q-td>
+        </template>
+      </q-table>
     </div>
-    <div class="q-mt-md">Selected: {{ JSON.stringify(selected) }}</div>
-    <q-dialog v-model="dialogVisible">
+    <!-- <div class="q-mt-md">Selected: {{ JSON.stringify(selected) }}</div> -->
+
+    <!-- Dialog que muestra la estructura de la tabla-->
+    <q-dialog v-model="structureDialogVisible">
       <q-card>
         <q-card-section>
           <div class="text-he">
@@ -36,7 +55,8 @@
             :rows="tableStructure"
             :columns="structureColumns"
             row-key="column_name"
-            :pagination="structurePagination"
+            hide-pagination
+            :rows-per-page-options="[0]"
           />
           <div v-else>Cargando estructura de la tabla ...</div>
         </q-card-section>
@@ -44,9 +64,32 @@
           <q-btn
             label="Cerrar"
             color="primary"
-            @click="dialogVisible = false"
+            @click="structureDialogVisible = false"
           />
         </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialog que muestra los datos en formato JSON-->
+    <q-dialog v-model="jsonDialogVisible">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">
+            Datos en formato JSON de : {{ selectedTableName }}
+          </div>
+        </q-card-section>
+        <q-card-section>
+          <pre>
+            {{ jsonData }}
+          </pre>
+        </q-card-section>
+        <q-card-action>
+          <q-btn
+            label="Cerrar"
+            color="primary"
+            @click="jsonDialogVisible = false"
+          />
+        </q-card-action>
       </q-card>
     </q-dialog>
   </div>
@@ -76,6 +119,12 @@ const columns = ref([
     align: "left",
     sortable: true,
   },
+  {
+    name: "actions",
+    label: "Acciones",
+    field: "actions",
+    align: "center",
+  },
 ]);
 const totalTables = ref(0);
 
@@ -86,10 +135,13 @@ const initialPagination = {
   rowsPerPage: 10,
 };
 
-// variables para el dialogo y la estructura de la tabla
-const dialogVisible = ref(false);
+// variables para los dialogs (estructura y json)
+const structureDialogVisible = ref(false);
+const jsonDialogVisible = ref(false);
 const selectedTableName = ref("");
 const tableStructure = ref([]);
+const jsonData = ref({});
+
 const structureColumns = ref([
   {
     name: "column_name",
@@ -146,7 +198,7 @@ const fetchTables = async () => {
 
 // funcion para obtener la estructura de la tabla seleccionada con la API de fastApi
 const fetchTableStructure = async (tableName: string) => {
-  console.log("En fetchTableStructure: ", tableName);
+  // console.log("En fetchTableStructure: ", tableName);
   try {
     const response = await fetch(
       `${apiUrlStore.fastApiUrl}/table-structure/${tableName}`
@@ -165,17 +217,52 @@ const fetchTableStructure = async (tableName: string) => {
   }
 };
 
-// funcion que se ejecuta al seleccionar fila
-const onRowSelected = (selectedRows: TableRow[]) => {
-  if (selectedRows.length > 0) {
-    selectedTableName.value = selectedRows[0].name; // obteniendo el nombre de la tabla seleccionada
-    // obteniendo la estructura de la tabla y esperando el resultado antes de mostrarlo
-    dialogVisible.value = true; // mostrando dialog
-    fetchTableStructure(selectedTableName.value);
-  } else {
-    dialogVisible.value = false; // escondiendo el dialog
+// Funcion para obtener los datos de la tabla en formato JSON segun la API de fastapi
+const fetchTableData = async (tableName: string) => {
+  try {
+    const response = await fetch(
+      `${apiUrlStore.fastApiUrl}/table-data/${tableName}`
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener la información de la tabla");
+    }
+    const data = await response.json();
+    console.log("JSON: ", data);
+    jsonData.value = data;
+  } catch (error) {
+    console.error("Error fetching table data: ", error);
+    $q.notify({
+      type: "negative",
+      message: "Error al obtener la información de la tabla",
+    });
   }
 };
+
+// Funcion que muestra la estructura de la tabla
+const showStructure = async (tableName: string) => {
+  selectedTableName.value = tableName;
+  structureDialogVisible.value = true;
+  await fetchTableStructure(tableName);
+};
+
+// Funcion para mostrar los datos en formato JSON
+const showJsonData = async (tableName: string) => {
+  selectedTableName.value = tableName;
+  jsonDialogVisible.value = true;
+  await fetchTableData(tableName);
+};
+
+// funcion que se ejecuta al seleccionar fila
+// const onRowSelected = (selectedRows: TableRow[]) => {
+//   if (selectedRows.length > 0) {
+//     selectedTableName.value = selectedRows[0].name; // obteniendo el nombre de la tabla seleccionada
+//     // obteniendo la estructura de la tabla y esperando el resultado antes de mostrarlo
+//     dialogVisible.value = true; // mostrando dialog
+//     fetchTableStructure(selectedTableName.value);
+//   } else {
+//     dialogVisible.value = false; // escondiendo el dialog
+//   }
+// };
 
 onMounted(() => {
   fetchTables();
