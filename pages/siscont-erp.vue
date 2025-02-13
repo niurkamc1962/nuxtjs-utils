@@ -9,6 +9,9 @@
         :rows="rows"
         :columns="columns"
         row-key="name"
+        selection="single"
+        v-model:selected="selected"
+        @update:selected="onRowSelected"
         :pagination="initialPagination"
         :class="{
           'bg-gray-800 text-white': $colorMode.value === 'dark',
@@ -17,6 +20,35 @@
         class="rounded-lg shadow-lg"
       />
     </div>
+    <div class="q-mt-md">Selected: {{ JSON.stringify(selected) }}</div>
+    <q-dialog v-model="dialogVisible">
+      <q-card>
+        <q-card-section>
+          <div class="text-he">
+            Estructura de la tabla: {{ selectedTableName }}
+          </div>
+        </q-card-section>
+        <q-card-section>
+          <q-table
+            v-if="tableStructure.length > 0"
+            flat
+            bordered
+            :rows="tableStructure"
+            :columns="structureColumns"
+            row-key="column_name"
+            :pagination="structurePagination"
+          />
+          <div v-else>Cargando estructura de la tabla ...</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            label="Cerrar"
+            color="primary"
+            @click="dialogVisible = false"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -34,7 +66,8 @@ interface TableRow {
   name: string;
 }
 
-const rows = ref([]);
+const selected = ref<TableRow[]>([]);
+const rows = ref<TableRow[]>([]);
 const columns = ref([
   {
     name: "name",
@@ -53,6 +86,49 @@ const initialPagination = {
   rowsPerPage: 10,
 };
 
+// variables para el dialogo y la estructura de la tabla
+const dialogVisible = ref(false);
+const selectedTableName = ref("");
+const tableStructure = ref([]);
+const structureColumns = ref([
+  {
+    name: "column_name",
+    label: "Columna",
+    field: "column_name",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "data_type",
+    label: "Tipo de datos",
+    field: "data_type",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "max_length",
+    label: "Longitud",
+    field: "max_length",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "is_nullable",
+    label: "Es Nulo",
+    field: "is_nullable",
+    align: "left",
+    sortable: true,
+  },
+]);
+
+const structurePagination = {
+  sortBy: "column_name",
+  descending: false,
+  page: 1,
+  rowsPerPage: 10,
+};
+
+// Funcion para seleccionar los nombres de las tablas con la API de fastApi /tables
 const fetchTables = async () => {
   try {
     const response = await fetch(`${apiUrlStore.fastApiUrl}/tables`);
@@ -65,6 +141,39 @@ const fetchTables = async () => {
     totalTables.value = data.tables.length; // Usamos la longitud del array para el total
   } catch (error) {
     console.error("Error fetching tables: ", error);
+  }
+};
+
+// funcion para obtener la estructura de la tabla seleccionada con la API de fastApi
+const fetchTableStructure = async (tableName: string) => {
+  console.log("En fetchTableStructure: ", tableName);
+  try {
+    const response = await fetch(
+      `${apiUrlStore.fastApiUrl}/table-structure/${tableName}`
+    );
+    if (!response.ok) {
+      throw new Error("Error al obtener la estructura de la tabla");
+    }
+    const data = await response.json();
+    tableStructure.value = data.columns; // asignando estructura de la tabla
+  } catch (error) {
+    console.error("Error fetching table structure: ", error);
+    $q.notify({
+      type: "negative",
+      message: "Error al obtener la estructura de la tabla",
+    });
+  }
+};
+
+// funcion que se ejecuta al seleccionar fila
+const onRowSelected = (selectedRows: TableRow[]) => {
+  if (selectedRows.length > 0) {
+    selectedTableName.value = selectedRows[0].name; // obteniendo el nombre de la tabla seleccionada
+    // obteniendo la estructura de la tabla y esperando el resultado antes de mostrarlo
+    dialogVisible.value = true; // mostrando dialog
+    fetchTableStructure(selectedTableName.value);
+  } else {
+    dialogVisible.value = false; // escondiendo el dialog
   }
 };
 
