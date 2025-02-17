@@ -14,26 +14,41 @@
           'bg-gray-800 text-white': $colorMode.value === 'dark',
           'bg-white': $colorMode.value === 'light',
         }"
+        :filter="filter"
         class="rounded-lg shadow-lg"
       >
         <!-- Botones para las acciones en las filas-->
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
             <q-btn
+              rounded
               color="primary"
-              label="Estructura"
+              label="Ver Estructura"
               @click="showStructure(props.row.name)"
-              class="q-mr-sm"
+              size="sm"
             />
-          </q-td>
-          <q-td :props="props">
+
             <q-btn
+              rounded
               color="secondary"
-              label="Ver JSON"
+              label="Obtener datos JSON"
               @click="showJsonData(props.row.name)"
-              class="q-mr-sm"
+              size="sm"
             />
           </q-td>
+        </template>
+        <template v-slot:top-right>
+          <q-input
+            borderless
+            dense
+            debounce="400"
+            v-model="filter"
+            placeholder="Buscar tabla ..."
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </template>
       </q-table>
     </div>
@@ -109,6 +124,7 @@ interface TableRow {
   name: string;
 }
 
+const filter = ref("");
 const selected = ref<TableRow[]>([]);
 const rows = ref<TableRow[]>([]);
 const columns = ref([
