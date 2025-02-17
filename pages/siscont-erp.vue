@@ -58,7 +58,7 @@
     <q-dialog v-model="structureDialogVisible">
       <q-card>
         <q-card-section>
-          <div class="text-he">
+          <div class="font-medium text-black text-md">
             Estructura de la tabla: {{ selectedTableName }}
           </div>
         </q-card-section>
@@ -87,24 +87,21 @@
 
     <!-- Dialog que muestra los datos en formato JSON-->
     <q-dialog v-model="jsonDialogVisible">
-      <q-card>
+      <q-card style="max-width: 80vw">
         <q-card-section>
-          <div class="text-h6">
+          <div class="font-medium text-black text-md">
             Datos en formato JSON de : {{ selectedTableName }}
           </div>
         </q-card-section>
-        <q-card-section>
+        <q-card-section style="max-height: 50vh" class="scroll">
           <pre>
             {{ jsonData }}
           </pre>
         </q-card-section>
-        <q-card-action>
-          <q-btn
-            label="Cerrar"
-            color="primary"
-            @click="jsonDialogVisible = false"
-          />
-        </q-card-action>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" color="primary" v-close-popup />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
